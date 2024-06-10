@@ -47,6 +47,7 @@ function HashMap(size) {
                     return buckets[index][i][1];
                 }
             }
+            return null;
         },
 
         has(key) {
@@ -60,18 +61,37 @@ function HashMap(size) {
                     return true;
                 }
             }
+            return false;
         },
 
         remove(key) {
+            const index = hash(key);
+            if (buckets[index] === null) {
+                return false;
+            }
+
+            for (let i = 0; i < buckets[index].length; i++) {
+                if (buckets[index][i][0] === key) {
+                    buckets[index].splice(i, 1);
+                    if (buckets[index].length === 0) {
+                        buckets[index] = null;
+                    }
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        length() {
             
         }
     }
 }
 
-let map = HashMap(23);
-console.log(map.set('roberto', 'martinez'));
-console.log(map.set('Silvia', 'Garuti'));
-console.log(map.set('rodrigo', 'martinez'));
+let map = HashMap(10);
+map.set('roberto', 'martinez');
+map.set('Silvia', 'Garuti');
+map.set('rodrigo', 'martinez');
 console.log(map.buckets);
 console.log(map.get('Silvia'));
 console.log(map.has('Rodrigo'));
