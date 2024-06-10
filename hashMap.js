@@ -83,7 +83,17 @@ function HashMap(size) {
         },
 
         length() {
-            
+            let count = 0;
+            for (let i = 0; i < buckets.length; i++) {
+                if (buckets[i] !== null) {
+                    for (let j = 0; j < buckets[i].length; j++) {
+                        if (buckets[i][j]) {
+                            count++;
+                        }
+                    }
+                }
+            }
+            return count;
         }
     }
 }
@@ -95,3 +105,4 @@ map.set('rodrigo', 'martinez');
 console.log(map.buckets);
 console.log(map.get('Silvia'));
 console.log(map.has('Rodrigo'));
+console.log(map.length());
