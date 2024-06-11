@@ -134,11 +134,42 @@ function HashMap(size) {
     }
 }
 
-let map = HashMap(10);
-map.set('roberto', 'martinez');
-map.set('Silvia', 'Garuti');
-map.set('rodrigo', 'martinez');
-console.log(map.buckets);
-console.log(map.get('Silvia'));
-console.log(map.has('Rodrigo'));
-console.log(map.length());
+// Create a new hash map
+let myHashMap = new HashMap(10);
+
+// Adding elements
+myHashMap.set("name", "Alice");
+myHashMap.set("age", 25);
+myHashMap.set("occupation", "Engineer");
+myHashMap.set("country", "Canada");
+
+// Retrieving an element
+console.log("Name:", myHashMap.get("name"));  // Should log 'Alice'
+
+// Checking existence
+console.log("Has age:", myHashMap.has("age"));  // Should log true
+console.log("Has salary:", myHashMap.has("salary"));  // Should log false
+
+// Getting all keys
+console.log("Keys:", myHashMap.keys());  // Should log ['name', 'age', 'occupation', 'country']
+
+// Getting all values
+console.log("Values:", myHashMap.values());  // Should log ['Alice', 25, 'Engineer', 'Canada']
+
+// Getting all entries
+console.log("Entries:", myHashMap.entries());  // Should log [['name', 'Alice'], ['age', 25], ...
+
+// Length of the hash map
+console.log("Length:", myHashMap.length());  // Should log 4
+
+// Removing an element
+myHashMap.remove("occupation");
+console.log("Post-remove length:", myHashMap.length());  // Should log 3
+
+// Clearing the hash map
+myHashMap.clear();
+console.log("Post-clear length:", myHashMap.length());  // Should log 0
+
+// Trying to retrieve a cleared key
+console.log("Name post-clear:", myHashMap.get("name"));  // Should log null
+
