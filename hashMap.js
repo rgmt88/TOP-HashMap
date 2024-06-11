@@ -1,7 +1,9 @@
 function HashMap(initialSize = 10) {
-    const buckets = new Array(initialSize).fill(null);
+    let buckets = new Array(initialSize).fill(null);
     // Track the current number of key-value pairs
     let size = 0;
+    // Flag to indicate if a resize operation is underway
+    let resizing = false;
 
     function hash(key) {
         let hashCode = 0;
@@ -40,7 +42,7 @@ function HashMap(initialSize = 10) {
 
     return {
         set(key, value) {
-            if (! resizing && size / buckets.length >= 0.75) {
+            if (!resizing && size / buckets.length >= 0.75) {
                 resize(buckets.length * 2);
             }
 
@@ -162,42 +164,45 @@ function HashMap(initialSize = 10) {
     }
 }
 
-// Create a new hash map
-let myHashMap = new HashMap(10);
+function testHashMap() {
+    // Initialize new HashMap
+    let hm = new HashMap(3); // Start small to test resizing
 
-// Adding elements
-myHashMap.set("name", "Alice");
-myHashMap.set("age", 25);
-myHashMap.set("occupation", "Engineer");
-myHashMap.set("country", "Canada");
+    // Add some key-value pairs
+    hm.set('name', 'Alice');
+    hm.set('age', 30);
+    hm.set('country', 'Wonderland');
+    hm.set('occupation', 'Adventurer');
+    hm.set('hobby', 'Exploring');
 
-// Retrieving an element
-console.log("Name:", myHashMap.get("name"));  // Should log 'Alice'
+    // Output values to check correct insertion and auto-resizing
+    console.log('Values:', hm.values()); // Should show ['Alice', 30, 'Wonderland', 'Adventurer', 'Exploring']
 
-// Checking existence
-console.log("Has age:", myHashMap.has("age"));  // Should log true
-console.log("Has salary:", myHashMap.has("salary"));  // Should log false
+    // Test retrieval
+    console.log('Get name:', hm.get('name')); // Should output 'Alice'
+    console.log('Get age:', hm.get('age')); // Should output 30
 
-// Getting all keys
-console.log("Keys:", myHashMap.keys());  // Should log ['name', 'age', 'occupation', 'country']
+    // Check presence
+    console.log('Has hobby:', hm.has('hobby')); // Should output true
+    console.log('Has salary:', hm.has('salary')); // Should output false
 
-// Getting all values
-console.log("Values:", myHashMap.values());  // Should log ['Alice', 25, 'Engineer', 'Canada']
+    // Test removal
+    hm.remove('occupation');
+    console.log('Post-removal values:', hm.values()); // Should not include 'Adventurer'
 
-// Getting all entries
-console.log("Entries:", myHashMap.entries());  // Should log [['name', 'Alice'], ['age', 25], ...
+    // Check length
+    console.log('Current length (should be 4):', hm.length());
 
-// Length of the hash map
-console.log("Length:", myHashMap.length());  // Should log 4
+    // Test all keys and entries
+    console.log('All keys:', hm.keys()); // Should list all current keys
+    console.log('All entries:', hm.entries()); // Should show all key-value pairs
 
-// Removing an element
-myHashMap.remove("occupation");
-console.log("Post-remove length:", myHashMap.length());  // Should log 3
+    // Clearing the hash map
+    hm.clear();
+    console.log('Length after clear:', hm.length()); // Should be 0
+    console.log('Entries after clear:', hm.entries()); // Should be empty
+}
 
-// Clearing the hash map
-myHashMap.clear();
-console.log("Post-clear length:", myHashMap.length());  // Should log 0
+testHashMap();
 
-// Trying to retrieve a cleared key
-console.log("Name post-clear:", myHashMap.get("name"));  // Should log null
 
