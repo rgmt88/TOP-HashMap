@@ -106,6 +106,30 @@ function HashMap(size) {
                 }
             }
             return result;
+        },
+
+        values() {
+            let result = [];
+            for (let i = 0; i < buckets.length; i++) {
+                if (buckets[i] !== null) {
+                    for (let j = 0; j < buckets[i].length; j++) {
+                        result.push(buckets[i][j][1]);
+                    }
+                }
+            }
+            return result;
+        },
+
+        entries() {
+            let result = [];
+            for (let i = 0; i < buckets.length; i++) {
+                if (buckets[i] !== null) {
+                    for (let j = 0; j < buckets[i].length; j++) {
+                        result.push(buckets[i][j]);
+                    }
+                }
+            }
+            return result;
         }
     }
 }
