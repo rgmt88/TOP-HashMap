@@ -94,6 +94,22 @@ function HashMap(size) {
                 }
             }
             return count;
+        },
+
+        clear() {
+            buckets.fill(null);    
+        },
+
+        keys() {
+            let result = [];
+            for (let i = 0; i < buckets.length; i++) {
+                if (buckets[i] !== null) {
+                    for (let j = 0; j < buckets[i].length; j++) {
+                        result.push(buckets[i][j][0]);
+                    }
+                }
+            }
+            return result;
         }
     }
 }
