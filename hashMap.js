@@ -1,8 +1,8 @@
 function HashMap(initialSize = 10) {
-    let buckets = new Array(initialSize).fill(null);
-    // Track the current number of key-value pairs
-    let size = 0;
-    // Flag to indicate if a resize operation is underway
+    let state = {
+        buckets: new Array(initialSize).fill(null),
+        size: 0
+    };
     let resizing = false;
 
     function hash(key) {
@@ -10,30 +10,29 @@ function HashMap(initialSize = 10) {
 
         const primeNumber = 31;
         for (let i = 0; i < key.length; i++) {
-            hashCode = (primeNumber * hashCode + key.charCodeAt(i)) % buckets.length;
+            hashCode = (primeNumber * hashCode + key.charCodeAt(i)) % state.buckets.length;
         }
 
         return hashCode;
     }
 
     function resize(newCapacity) {
+        resizing = true;
         const newBuckets = new Array(newCapacity).fill(null);
-        const oldBuckets = buckets;
-        buckets = newBuckets;
-        const oldSize = size;
-        size = 0;
-
-        let resizing = true;
+        const oldBuckets = state.buckets;
+        state.buckets = newBuckets;
+        state.size = 0;
+        
         oldBuckets.forEach(bucket => {
             if (bucket) {
                 bucket.forEach(([key, value]) => {
                     // Temporarily bypass the resize logic in set
                     const index = hash(key);
-                    if (buckets[index] === null) {
-                        buckets[index] = [];
+                    if (state.buckets[index] === null) {
+                        state.buckets[index] = [];
                     }
-                    buckets[index].push([key, value]);
-                    size++;
+                    state.buckets[index].push([key, value]);
+                    state.size++;
                 });
             }
         });
@@ -41,40 +40,42 @@ function HashMap(initialSize = 10) {
     }
 
     return {
+        state,
+
         set(key, value) {
-            if (!resizing && size / buckets.length >= 0.75) {
-                resize(buckets.length * 2);
+            if (!resizing && state.size / state.buckets.length >= 0.75) {
+                resize(state.buckets.length * 2);
             }
 
             const index = hash(key);
-            if (buckets[index] === null) {
-                buckets[index] = [];
+            if (state.buckets[index] === null) {
+                state.buckets[index] = [];
             }
 
             let inserted = false;
-            for (let i = 0; i < buckets[index].length; i++) {
-                if (buckets[index][i][0] === key) {
-                    buckets[index][i][1] = value;
+            for (let i = 0; i < state.buckets[index].length; i++) {
+                if (state.buckets[index][i][0] === key) {
+                    state.buckets[index][i][1] = value;
                     inserted = true;
                     break;
                 }
             }
 
             if (!inserted) {
-                buckets[index].push([key, value]);
-                size++;
+                state.buckets[index].push([key, value]);
+                state.size++;
             }
         },
 
         get(key) {
             const index = hash(key);
-            if (buckets[index] === null) {
+            if (state.buckets[index] === null) {
                 return null;
             }
 
-            for (let i = 0; i < buckets[index].length; i++) {
-                if (buckets[index][i][0] === key) {
-                    return buckets[index][i][1];
+            for (let i = 0; i < state.buckets[index].length; i++) {
+                if (state.buckets[index][i][0] === key) {
+                    return state.buckets[index][i][1];
                 }
             }
             return null;
@@ -82,12 +83,12 @@ function HashMap(initialSize = 10) {
 
         has(key) {
             const index = hash(key);
-            if (buckets[index] === null) {
+            if (state.buckets[index] === null) {
                 return false;
             }
 
-            for (let i = 0; i < buckets[index].length; i++) {
-                if (buckets[index][i][0] === key) {
+            for (let i = 0; i < state.buckets[index].length; i++) {
+                if (state.buckets[index][i][0] === key) {
                     return true;
                 }
             }
@@ -96,15 +97,15 @@ function HashMap(initialSize = 10) {
 
         remove(key) {
             const index = hash(key);
-            if (buckets[index] === null) {
+            if (state.buckets[index] === null) {
                 return false;
             }
 
-            for (let i = 0; i < buckets[index].length; i++) {
-                if (buckets[index][i][0] === key) {
-                    buckets[index].splice(i, 1);
-                    if (buckets[index].length === 0) {
-                        buckets[index] = null;
+            for (let i = 0; i < state.buckets[index].length; i++) {
+                if (state.buckets[index][i][0] === key) {
+                    state.buckets[index].splice(i, 1);
+                    if (state.buckets[index].length === 0) {
+                        state.buckets[index] = null;
                     }
                     return true;
                 }
@@ -114,24 +115,25 @@ function HashMap(initialSize = 10) {
 
         length() {
             let count = 0;
-            for (let i = 0; i < buckets.length; i++) {
-                if (buckets[i] !== null) {
-                    count += buckets[i].length;
+            for (let i = 0; i < state.buckets.length; i++) {
+                if (state.buckets[i] !== null) {
+                    count += state.buckets[i].length;
                 }
             }
             return count;
         },
 
         clear() {
-            buckets.fill(null);    
+            state.buckets.fill(null);
+            state.size = 0;  
         },
 
         keys() {
             let result = [];
-            for (let i = 0; i < buckets.length; i++) {
-                if (buckets[i] !== null) {
-                    for (let j = 0; j < buckets[i].length; j++) {
-                        result.push(buckets[i][j][0]);
+            for (let i = 0; i < state.buckets.length; i++) {
+                if (state.buckets[i] !== null) {
+                    for (let j = 0; j < state.buckets[i].length; j++) {
+                        result.push(state.buckets[i][j][0]);
                     }
                 }
             }
@@ -140,10 +142,10 @@ function HashMap(initialSize = 10) {
 
         values() {
             let result = [];
-            for (let i = 0; i < buckets.length; i++) {
-                if (buckets[i] !== null) {
-                    for (let j = 0; j < buckets[i].length; j++) {
-                        result.push(buckets[i][j][1]);
+            for (let i = 0; i < state.buckets.length; i++) {
+                if (state.buckets[i] !== null) {
+                    for (let j = 0; j < state.buckets[i].length; j++) {
+                        result.push(state.buckets[i][j][1]);
                     }
                 }
             }
@@ -152,10 +154,10 @@ function HashMap(initialSize = 10) {
 
         entries() {
             let result = [];
-            for (let i = 0; i < buckets.length; i++) {
-                if (buckets[i] !== null) {
-                    for (let j = 0; j < buckets[i].length; j++) {
-                        result.push(buckets[i][j]);
+            for (let i = 0; i < state.buckets.length; i++) {
+                if (state.buckets[i] !== null) {
+                    for (let j = 0; j < state.buckets[i].length; j++) {
+                        result.push(state.buckets[i][j]);
                     }
                 }
             }
@@ -167,6 +169,7 @@ function HashMap(initialSize = 10) {
 function testHashMap() {
     // Initialize new HashMap
     let hm = new HashMap(3); // Start small to test resizing
+    console.log('Buckets:', hm.state.buckets);
 
     // Add some key-value pairs
     hm.set('name', 'Alice');
@@ -199,6 +202,8 @@ function testHashMap() {
 
     // Clearing the hash map
     hm.clear();
+    // Check and display after clearing
+    console.log('After clear - Buckets:', hm.state.buckets);
     console.log('Length after clear:', hm.length()); // Should be 0
     console.log('Entries after clear:', hm.entries()); // Should be empty
 }
