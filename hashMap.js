@@ -1,22 +1,49 @@
-function HashMap(size) {
-    const buckets = new Array(size).fill(null);
+function HashMap(initialSize = 10) {
+    const buckets = new Array(initialSize).fill(null);
+    // Track the current number of key-value pairs
+    let size = 0;
 
     function hash(key) {
         let hashCode = 0;
 
         const primeNumber = 31;
         for (let i = 0; i < key.length; i++) {
-            hashCode = (primeNumber * hashCode + key.charCodeAt(i)) % size;
+            hashCode = (primeNumber * hashCode + key.charCodeAt(i)) % buckets.length;
         }
 
         return hashCode;
     }
 
-    return {
-        hash,
-        buckets,
+    function resize(newCapacity) {
+        const newBuckets = new Array(newCapacity).fill(null);
+        const oldBuckets = buckets;
+        buckets = newBuckets;
+        const oldSize = size;
+        size = 0;
 
+        let resizing = true;
+        oldBuckets.forEach(bucket => {
+            if (bucket) {
+                bucket.forEach(([key, value]) => {
+                    // Temporarily bypass the resize logic in set
+                    const index = hash(key);
+                    if (buckets[index] === null) {
+                        buckets[index] = [];
+                    }
+                    buckets[index].push([key, value]);
+                    size++;
+                });
+            }
+        });
+        resizing = false;
+    }
+
+    return {
         set(key, value) {
+            if (! resizing && size / buckets.length >= 0.75) {
+                resize(buckets.length * 2);
+            }
+
             const index = hash(key);
             if (buckets[index] === null) {
                 buckets[index] = [];
@@ -33,6 +60,7 @@ function HashMap(size) {
 
             if (!inserted) {
                 buckets[index].push([key, value]);
+                size++;
             }
         },
 
